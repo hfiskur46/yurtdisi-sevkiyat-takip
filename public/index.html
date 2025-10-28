@@ -17,11 +17,13 @@
   .btn-primary{background:#0b5ed7;color:#fff}
   .btn-danger{background:#dc3545;color:#fff}
   .small{font-size:12px;color:#666}
+  nav a{margin-right:10px;color:#fff;text-decoration:none}
+  .topbar{display:flex;justify-content:space-between;align-items:center}
 </style>
 </head>
 <body>
 <header>
-  <div class="container"><strong>Yurtdışı Sevkiyat Takip</strong> — Sunucu tabanlı demo</div>
+  <div class="container topbar"><div><strong>Yurtdışı Sevkiyat Takip</strong></div><div id="nav"></div></div>
 </header>
 <div class="container">
   <div class="card" id="loginCard">
@@ -34,26 +36,42 @@
     <p class="small">Demo kullanıcılar: admin/admin123, rep/rep123</p>
   </div>
 
-  <div class="card" id="app" style="display:none;margin-top:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h3>Sevkiyatlar</h3>
-      <div>
-        <input id="search" placeholder="Ara: tracking/customer/booking" />
-        <button class="btn" id="refresh">Yenile</button>
-        <button class="btn btn-primary" id="newBtn">Yeni Kayıt</button>
-        <button class="btn" id="logout">Çıkış</button>
+  <div id="mainArea" style="display:none">
+    <div class="card" id="listCard" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Sevkiyatlar</h3>
+        <div>
+          <input id="search" placeholder="Ara: tracking/customer/booking" />
+          <button class="btn" id="refresh">Yenile</button>
+          <button class="btn btn-primary" id="newBtn">Yeni Kayıt</button>
+          <button class="btn" id="logout">Çıkış</button>
+        </div>
       </div>
+      <div id="list" style="margin-top:12px"></div>
     </div>
 
-    <div id="list" style="margin-top:12px"></div>
+    <div class="card" id="reportCard" style="margin-top:12px;display:none">
+      <h3>Raporlar</h3>
+      <div id="reports"></div>
+    </div>
+  </div>
+
+  <div class="card" id="trackCard" style="margin-top:12px">
+    <h3>Takip Sorgula (Herkese Açık)</h3>
+    <div class="flex">
+      <input id="trackInput" placeholder="Tracking No" />
+      <button class="btn" id="trackBtn">Sorgula</button>
+    </div>
+    <div id="trackResult" style="margin-top:8px"></div>
   </div>
 </div>
 
 <!-- Modal form (basit) -->
 <div id="modal" style="display:none;position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center">
-  <div style="background:#fff;padding:16px;border-radius:8px;max-width:700px;margin:auto">
+  <div style="background:#fff;padding:16px;border-radius:8px;max-width:900px;margin:auto">
     <h4 id="modalTitle">Yeni Sevkiyat</h4>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <select id="m_transport"><option value="road">Karayolu</option><option value="air">Havayolu</option><option value="sea">Denizyolu</option></select>
       <input id="m_tracking" placeholder="Tracking No" />
       <input id="m_customer" placeholder="Müşteri" />
       <input id="m_country" placeholder="Ülke" />
@@ -78,6 +96,7 @@
 const apiBase = '/api';
 let token = null;
 let editingId = null;
+let currentUser = null;
 
 function el(id){return document.getElementById(id)}
 
@@ -88,13 +107,24 @@ async function login(){
   if (res.ok){
     const data = await res.json();
     token = data.token;
+    currentUser = data.user;
     el('loginCard').style.display='none';
-    el('app').style.display='block';
+    el('mainArea').style.display='block';
+    renderNav();
     loadList();
+    if(currentUser.role==='admin') el('reportCard').style.display='block';
   } else {
     alert('Giriş başarısız');
   }
 }
+
+function renderNav(){
+  const nav = el('nav');
+  nav.innerHTML = `<nav><a href="#" onclick="showList()">Sevkiyatlar</a> <a href="#" onclick="showReports()">Raporlar</a></nav>`;
+}
+
+function showList(){ el('listCard').style.display='block'; el('reportCard').style.display='none' }
+function showReports(){ el('listCard').style.display='none'; el('reportCard').style.display='block'; loadReports(); }
 
 async function loadList(){
   const q = el('search').value || '';
@@ -106,9 +136,9 @@ async function loadList(){
 
 function renderTable(rows){
   if (!rows.length) { el('list').innerHTML = '<p>Veri yok.</p>'; return; }
-  let html = '<table><thead><tr><th>ID</th><th>Tracking</th><th>Müşteri</th><th>Ülke</th><th>Nakliyeci</th><th>ETA</th><th>Status</th><th>Mail</th><th>Son Güncelleme</th><th>İşlem</th></tr></thead><tbody>';
+  let html = '<table><thead><tr><th>ID</th><th>Tip</th><th>Tracking</th><th>Müşteri</th><th>Ülke</th><th>Nakliyeci</th><th>ETA</th><th>Status</th><th>Mail</th><th>Son Güncelleme</th><th>İşlem</th></tr></thead><tbody>';
   for (const r of rows){
-    html += `<tr><td>${r.id}</td><td>${r.tracking_no}</td><td>${r.customer||''}</td><td>${r.country||''}</td><td>${r.carrier||''}</td><td>${r.eta||''}</td><td>${r.status||''}</td><td>${r.email||''}</td><td>${r.updated_at||''}</td><td><button onclick="edit(${r.id})">Düzenle</button> <button onclick="del(${r.id})">Sil</button></td></tr>`;
+    html += `<tr><td>${r.id}</td><td>${r.transport}</td><td>${r.tracking_no}</td><td>${r.customer||''}</td><td>${r.country||''}</td><td>${r.carrier||''}</td><td>${r.eta||''}</td><td>${r.status||''}</td><td>${r.email||''}</td><td>${r.updated_at||''}</td><td><button onclick="edit(${r.id})">Düzenle</button> <button onclick="del(${r.id})">Sil</button></td></tr>`;
   }
   html += '</tbody></table>';
   el('list').innerHTML = html;
@@ -119,6 +149,7 @@ function hideModal(){ el('modal').style.display='none'; editingId=null; }
 
 async function saveModal(){
   const s = {
+    transport: el('m_transport').value,
     tracking_no: el('m_tracking').value,
     customer: el('m_customer').value,
     country: el('m_country').value,
@@ -132,11 +163,12 @@ async function saveModal(){
     auto_email: el('m_autoemail').checked,
     email: el('m_email').value
   };
+  const headers = {'Content-Type':'application/json','Authorization':'Bearer '+token};
   if (editingId){
-    const res = await fetch(apiBase + '/shipments/' + editingId, {method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(s)});
+    const res = await fetch(apiBase + '/shipments/' + editingId, {method:'PUT', headers, body:JSON.stringify(s)});
     if (res.ok) { hideModal(); loadList(); } else alert('Güncelleme hatası');
   } else {
-    const res = await fetch(apiBase + '/shipments', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(s)});
+    const res = await fetch(apiBase + '/shipments', {method:'POST', headers, body:JSON.stringify(s)});
     if (res.ok) { hideModal(); loadList(); } else alert('Kaydetme hatası');
   }
 }
@@ -146,6 +178,7 @@ async function edit(id){
   if (!res.ok) { alert('Kayıt bulunamadı'); return; }
   const r = await res.json();
   editingId = id;
+  el('m_transport').value = r.transport||'road';
   el('m_tracking').value = r.tracking_no||'';
   el('m_customer').value = r.customer||'';
   el('m_country').value = r.country||'';
@@ -173,11 +206,47 @@ document.getElementById('refresh').addEventListener('click', loadList);
 document.getElementById('newBtn').addEventListener('click', ()=>{editingId=null;document.getElementById('modalTitle').innerText='Yeni Sevkiyat';showModal();});
 document.getElementById('modalCancel').addEventListener('click', hideModal);
 document.getElementById('modalSave').addEventListener('click', saveModal);
-document.getElementById('logout').addEventListener('click', ()=>{ token=null; document.getElementById('app').style.display='none'; document.getElementById('loginCard').style.display='block'; });
-
+document.getElementById('logout').addEventListener('click', ()=>{ token=null; currentUser=null; document.getElementById('mainArea').style.display='none'; document.getElementById('loginCard').style.display='block'; });
 document.getElementById('search').addEventListener('keyup', (e)=>{ if (e.key==='Enter') loadList(); });
+document.getElementById('trackBtn').addEventListener('click', async ()=>{
+  const t = el('trackInput').value.trim();
+  if(!t) return;
+  const res = await fetch('/api/track/' + encodeURIComponent(t));
+  if(!res.ok){ el('trackResult').innerText='Kayıt bulunamadı'; return; }
+  const r = await res.json();
+  el('trackResult').innerText = `Status: ${r.status} | ETA: ${r.eta} | Carrier: ${r.carrier} | Country: ${r.country}`;
+});
 
-setInterval(()=>{ if (document.getElementById('app').style.display==='block') loadList(); }, 15000);
+setInterval(()=>{ if (document.getElementById('mainArea').style.display==='block') loadList(); }, 15000);
+
+async function loadReports(){
+  const repDiv = el('reports');
+  repDiv.innerHTML = '<p>Yükleniyor...</p>';
+  // status summary
+  const s = await fetch('/api/reports/status-summary', {headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());
+  let html = '<h4>Durum Özeti</h4><ul>';
+  s.forEach(x=> html += `<li>${x.status}: ${x.count}</li>`);
+  html += '</ul>';
+  // country distribution
+  const c = await fetch('/api/reports/country-distribution', {headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());
+  html += '<h4>Ülke Dağılımı</h4><ul>';
+  c.forEach(x=> html += `<li>${x.country}: ${x.count}</li>`);
+  html += '</ul>';
+  // delays
+  const d = await fetch('/api/reports/delays', {headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());
+  html += '<h4>Gecikmeler (ETA geçmiş)</h4><ul>';
+  d.forEach(x=> html += `<li>${x.tracking_no} | ETA: ${x.eta} | Status: ${x.status}</li>`);
+  html += '</ul>';
+  // user perf (admin only)
+  if(currentUser && currentUser.role==='admin'){
+    const u = await fetch('/api/reports/user-performance', {headers:{'Authorization':'Bearer '+token}}).then(r=>r.json());
+    html += '<h4>Kullanıcı Performansı</h4><ul>';
+    u.forEach(x=> html += `<li>${x.username}: ${x.count}</li>`);
+    html += '</ul>';
+  }
+  repDiv.innerHTML = html;
+}
+
 </script>
 </body>
 </html>
