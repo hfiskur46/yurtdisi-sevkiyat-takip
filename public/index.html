@@ -1,1 +1,183 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Yurtdışı Sevkiyat Takip</title>
+<style>
+  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#f5f7fb}
+  header{background:#0b5ed7;color:#fff;padding:12px 20px}
+  .container{max-width:1100px;margin:18px auto;padding:12px}
+  .card{background:#fff;border-radius:8px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+  input,select,textarea{padding:6px;border:1px solid #ccc;border-radius:4px}
+  .flex{display:flex;gap:8px}
+  .btn{padding:8px 12px;border-radius:6px;border:none;cursor:pointer}
+  .btn-primary{background:#0b5ed7;color:#fff}
+  .btn-danger{background:#dc3545;color:#fff}
+  .small{font-size:12px;color:#666}
+</style>
+</head>
+<body>
+<header>
+  <div class="container"><strong>Yurtdışı Sevkiyat Takip</strong> — Sunucu tabanlı demo</div>
+</header>
+<div class="container">
+  <div class="card" id="loginCard">
+    <h3>Giriş</h3>
+    <div class="flex">
+      <input id="username" placeholder="Kullanıcı" />
+      <input id="password" placeholder="Şifre" type="password" />
+      <button class="btn btn-primary" id="loginBtn">Giriş</button>
+    </div>
+    <p class="small">Demo kullanıcılar: admin/admin123, rep/rep123</p>
+  </div>
 
+  <div class="card" id="app" style="display:none;margin-top:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3>Sevkiyatlar</h3>
+      <div>
+        <input id="search" placeholder="Ara: tracking/customer/booking" />
+        <button class="btn" id="refresh">Yenile</button>
+        <button class="btn btn-primary" id="newBtn">Yeni Kayıt</button>
+        <button class="btn" id="logout">Çıkış</button>
+      </div>
+    </div>
+
+    <div id="list" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<!-- Modal form (basit) -->
+<div id="modal" style="display:none;position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.4);align-items:center;justify-content:center">
+  <div style="background:#fff;padding:16px;border-radius:8px;max-width:700px;margin:auto">
+    <h4 id="modalTitle">Yeni Sevkiyat</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <input id="m_tracking" placeholder="Tracking No" />
+      <input id="m_customer" placeholder="Müşteri" />
+      <input id="m_country" placeholder="Ülke" />
+      <input id="m_carrier" placeholder="Nakliyeci" />
+      <input id="m_booking" placeholder="Booking/Konşimento No" />
+      <input id="m_departure" placeholder="Kalkış Tarihi (YYYY-MM-DD)" />
+      <input id="m_freetime" placeholder="Free Time (gün)" />
+      <input id="m_eta" placeholder="Tahmini Varış (YYYY-MM-DD)" />
+      <select id="m_status"><option>In Transit</option><option>Arrived</option><option>Delivered</option><option>Cancelled</option></select>
+      <label class="small">Otomatik Mail: <input type="checkbox" id="m_autoemail" /></label>
+      <input id="m_email" placeholder="Mail adresi" />
+      <textarea id="m_notes" placeholder="Açıklama" style="grid-column:1/3"></textarea>
+    </div>
+    <div style="margin-top:8px;text-align:right">
+      <button class="btn" id="modalCancel">İptal</button>
+      <button class="btn btn-primary" id="modalSave">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const apiBase = '/api';
+let token = null;
+let editingId = null;
+
+function el(id){return document.getElementById(id)}
+
+async function login(){
+  const username = el('username').value;
+  const password = el('password').value;
+  const res = await fetch(apiBase + '/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,password})});
+  if (res.ok){
+    const data = await res.json();
+    token = data.token;
+    el('loginCard').style.display='none';
+    el('app').style.display='block';
+    loadList();
+  } else {
+    alert('Giriş başarısız');
+  }
+}
+
+async function loadList(){
+  const q = el('search').value || '';
+  const res = await fetch(apiBase + '/shipments?q='+encodeURIComponent(q), {headers: {'Authorization': 'Bearer '+token}});
+  if (!res.ok) { alert('Liste alınamadı'); return; }
+  const rows = await res.json();
+  renderTable(rows);
+}
+
+function renderTable(rows){
+  if (!rows.length) { el('list').innerHTML = '<p>Veri yok.</p>'; return; }
+  let html = '<table><thead><tr><th>ID</th><th>Tracking</th><th>Müşteri</th><th>Ülke</th><th>Nakliyeci</th><th>ETA</th><th>Status</th><th>Mail</th><th>Son Güncelleme</th><th>İşlem</th></tr></thead><tbody>';
+  for (const r of rows){
+    html += `<tr><td>${r.id}</td><td>${r.tracking_no}</td><td>${r.customer||''}</td><td>${r.country||''}</td><td>${r.carrier||''}</td><td>${r.eta||''}</td><td>${r.status||''}</td><td>${r.email||''}</td><td>${r.updated_at||''}</td><td><button onclick="edit(${r.id})">Düzenle</button> <button onclick="del(${r.id})">Sil</button></td></tr>`;
+  }
+  html += '</tbody></table>';
+  el('list').innerHTML = html;
+}
+
+function showModal(){ el('modal').style.display='flex'; }
+function hideModal(){ el('modal').style.display='none'; editingId=null; }
+
+async function saveModal(){
+  const s = {
+    tracking_no: el('m_tracking').value,
+    customer: el('m_customer').value,
+    country: el('m_country').value,
+    carrier: el('m_carrier').value,
+    booking_no: el('m_booking').value,
+    departure_date: el('m_departure').value,
+    free_time_days: parseInt(el('m_freetime').value) || 0,
+    eta: el('m_eta').value,
+    status: el('m_status').value,
+    notes: el('m_notes').value,
+    auto_email: el('m_autoemail').checked,
+    email: el('m_email').value
+  };
+  if (editingId){
+    const res = await fetch(apiBase + '/shipments/' + editingId, {method:'PUT', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(s)});
+    if (res.ok) { hideModal(); loadList(); } else alert('Güncelleme hatası');
+  } else {
+    const res = await fetch(apiBase + '/shipments', {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify(s)});
+    if (res.ok) { hideModal(); loadList(); } else alert('Kaydetme hatası');
+  }
+}
+
+async function edit(id){
+  const res = await fetch(apiBase + '/shipments/' + id, {headers:{'Authorization':'Bearer '+token}});
+  if (!res.ok) { alert('Kayıt bulunamadı'); return; }
+  const r = await res.json();
+  editingId = id;
+  el('m_tracking').value = r.tracking_no||'';
+  el('m_customer').value = r.customer||'';
+  el('m_country').value = r.country||'';
+  el('m_carrier').value = r.carrier||'';
+  el('m_booking').value = r.booking_no||'';
+  el('m_departure').value = r.departure_date||'';
+  el('m_freetime').value = r.free_time_days||'';
+  el('m_eta').value = r.eta||'';
+  el('m_status').value = r.status||'';
+  el('m_notes').value = r.notes||'';
+  el('m_autoemail').checked = r.auto_email==1;
+  el('m_email').value = r.email||'';
+  el('modalTitle').innerText = 'Sevkiyat Düzenle';
+  showModal();
+}
+
+async function del(id){
+  if (!confirm('Silmek istediğinize emin misiniz?')) return;
+  const res = await fetch(apiBase + '/shipments/' + id, {method:'DELETE', headers:{'Authorization':'Bearer '+token}});
+  if (res.ok) loadList(); else alert('Silme hatası');
+}
+
+document.getElementById('loginBtn').addEventListener('click', login);
+document.getElementById('refresh').addEventListener('click', loadList);
+document.getElementById('newBtn').addEventListener('click', ()=>{editingId=null;document.getElementById('modalTitle').innerText='Yeni Sevkiyat';showModal();});
+document.getElementById('modalCancel').addEventListener('click', hideModal);
+document.getElementById('modalSave').addEventListener('click', saveModal);
+document.getElementById('logout').addEventListener('click', ()=>{ token=null; document.getElementById('app').style.display='none'; document.getElementById('loginCard').style.display='block'; });
+
+document.getElementById('search').addEventListener('keyup', (e)=>{ if (e.key==='Enter') loadList(); });
+
+setInterval(()=>{ if (document.getElementById('app').style.display==='block') loadList(); }, 15000);
+</script>
+</body>
+</html>
