@@ -11,10 +11,6 @@
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #003366, #00bcd4);
       color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
       padding: 20px;
     }
 
@@ -23,66 +19,51 @@
       margin-bottom: 20px;
     }
 
-    .login-box, .dashboard {
+    .section {
+      display: none;
       background: rgba(255, 255, 255, 0.95);
       color: #003366;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      max-width: 500px;
-      width: 100%;
-      margin-bottom: 30px;
+      max-width: 600px;
+      margin: 20px auto;
     }
 
-    input {
+    input, select, button {
       width: 100%;
       padding: 12px;
       margin-bottom: 15px;
-      border: 1px solid #ccc;
       border-radius: 8px;
+      border: 1px solid #ccc;
       font-size: 16px;
     }
 
     button {
-      width: 100%;
-      padding: 12px;
       background-color: #003366;
       color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
       cursor: pointer;
     }
 
-    .category-box {
+    .nav {
       display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
       justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
-    .card {
-      background: #fff;
-      color: #003366;
-      padding: 20px;
-      border-radius: 10px;
-      width: 150px;
-      text-align: center;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-
-    .card:hover {
-      transform: scale(1.05);
+    .nav button {
+      width: auto;
+      padding: 10px 20px;
+      background-color: #0055aa;
     }
 
     canvas {
       background: #fff;
       border-radius: 12px;
       padding: 20px;
-      max-width: 600px;
-      margin-top: 20px;
+      max-width: 100%;
     }
   </style>
 </head>
@@ -90,44 +71,122 @@
 
   <h1>İSKUR Sevkiyat Takip Sistemi</h1>
 
-  <div class="login-box" id="loginBox">
+  <div class="nav">
+    <button onclick="showSection('login')">Giriş</button>
+    <button onclick="showSection('dashboard')">Panel</button>
+    <button onclick="showSection('create')">Yeni Sevkiyat</button>
+    <button onclick="showSection('track')">Takip</button>
+    <button onclick="showSection('report')">Raporlar</button>
+  </div>
+
+  <!-- Giriş -->
+  <div class="section" id="login">
     <h2>Giriş Yap</h2>
     <input type="text" id="username" placeholder="Kullanıcı Adı" />
     <input type="password" id="password" placeholder="Şifre" />
     <button onclick="login()">Giriş</button>
   </div>
 
-  <div class="dashboard" id="dashboard" style="display:none;">
-    <h2>Taşıma Türüne Göre İşlemler</h2>
-    <div class="category-box">
-      <div class="card" onclick="alert('Karayolu formuna yönlendiriliyor...')">🚚 Karayolu</div>
-      <div class="card" onclick="alert('Havayolu formuna yönlendiriliyor...')">✈️ Havayolu</div>
-      <div class="card" onclick="alert('Denizyolu formuna yönlendiriliyor...')">🚢 Denizyolu</div>
-    </div>
+  <!-- Dashboard -->
+  <div class="section" id="dashboard">
+    <h2>Taşıma Türü Seç</h2>
+    <select id="modeSelect" onchange="renderForm()">
+      <option value="">Taşıma Türü Seçin</option>
+      <option value="karayolu">Karayolu</option>
+      <option value="havayolu">Havayolu</option>
+      <option value="denizyolu">Denizyolu</option>
+    </select>
+  </div>
 
+  <!-- Yeni Sevkiyat -->
+  <div class="section" id="create">
+    <h2>Yeni Sevkiyat Oluştur</h2>
+    <form id="shipmentForm">
+      <input type="text" name="sender" placeholder="Gönderici Firma" required />
+      <input type="text" name="receiver" placeholder="Alıcı Firma" required />
+      <input type="text" name="origin" placeholder="Menşei Ülke" required />
+      <input type="text" name="destination" placeholder="Varış Ülke" required />
+      <div id="modeFields"></div>
+      <button type="submit">Kaydet</button>
+    </form>
+  </div>
+
+  <!-- Takip -->
+  <div class="section" id="track">
+    <h2>Sevkiyat Takip</h2>
+    <input type="text" id="trackInput" placeholder="Takip Numarası Girin" />
+    <button onclick="trackShipment()">Sorgula</button>
+    <div id="trackResult"></div>
+  </div>
+
+  <!-- Raporlar -->
+  <div class="section" id="report">
     <h2>Genel Rapor</h2>
     <canvas id="shipmentChart"></canvas>
   </div>
 
   <script>
-    async function login() {
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      if (id === 'report') renderChart();
+    }
 
-      // Simülasyon: Gerçek API yerine sabit token
-      if (username === "admin" && password === "1234") {
-        const token = "simulated.jwt.token";
-        localStorage.setItem("jwt", token);
-        showDashboard();
+    function login() {
+      const u = document.getElementById("username").value;
+      const p = document.getElementById("password").value;
+      if (u === "admin" && p === "1234") {
+        alert("Giriş başarılı");
+        showSection("dashboard");
       } else {
-        alert("Giriş başarısız");
+        alert("Hatalı giriş");
       }
     }
 
-    function showDashboard() {
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
+    function renderForm() {
+      const mode = document.getElementById("modeSelect").value;
+      showSection("create");
+      const modeFields = document.getElementById("modeFields");
+      if (mode === "karayolu") {
+        modeFields.innerHTML = `
+          <input type="text" name="vehicle_plate" placeholder="Araç Plakası" />
+          <input type="text" name="customs_code" placeholder="Gümrük Kodu" />
+          <input type="text" name="route" placeholder="Güzergah Bilgisi" />
+        `;
+      } else if (mode === "havayolu") {
+        modeFields.innerHTML = `
+          <input type="text" name="awb_number" placeholder="AWB Numarası" />
+          <input type="text" name="airport_code" placeholder="Havalimanı Kodu" />
+          <input type="datetime-local" name="flight_time" />
+        `;
+      } else if (mode === "denizyolu") {
+        modeFields.innerHTML = `
+          <input type="text" name="bill_of_lading" placeholder="Konşimento No" />
+          <input type="text" name="port_code" placeholder="Liman Kodu" />
+          <select name="container_type">
+            <option value="">Konteyner Tipi</option>
+            <option value="20DC">20' DC</option>
+            <option value="40HC">40' HC</option>
+            <option value="Reefer">Soğutmalı</option>
+          </select>
+        `;
+      } else {
+        modeFields.innerHTML = `<p style="color:red;">Taşıma türü seçilmedi.</p>`;
+      }
+    }
 
+    document.getElementById("shipmentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target).entries());
+      alert("Sevkiyat kaydedildi: " + JSON.stringify(data));
+    });
+
+    function trackShipment() {
+      const code = document.getElementById("trackInput").value;
+      document.getElementById("trackResult").innerText = "Takip sonucu: " + code;
+    }
+
+    function renderChart() {
       const ctx = document.getElementById('shipmentChart').getContext('2d');
       new Chart(ctx, {
         type: 'bar',
@@ -148,11 +207,7 @@
       });
     }
 
-    // Oturum kontrolü
-    window.onload = () => {
-      const token = localStorage.getItem("jwt");
-      if (token) showDashboard();
-    };
+    showSection("login");
   </script>
 </body>
 </html>
