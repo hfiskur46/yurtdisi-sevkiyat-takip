@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | İSKUR Holding</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #003366;
+    }
+
+    .category-box {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      flex: 1;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+    }
+
+    canvas {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Taşıma Türüne Göre İşlemler</h1>
+
+  <div class="category-box">
+    <div class="card" onclick="window.location.href='create.html?mode=karayolu'">
+      <h3>🚚 Karayolu</h3>
+      <p>Gümrük, araç plakası, güzergah bilgileri</p>
+    </div>
+    <div class="card" onclick="window.location.href='create.html?mode=havayolu'">
+      <h3>✈️ Havayolu</h3>
+      <p>AWB numarası, havalimanı kodları, uçuş saati</p>
+    </div>
+    <div class="card" onclick="window.location.href='create.html?mode=denizyolu'">
+      <h3>🚢 Denizyolu</h3>
+      <p>Konşimento, liman kodları, konteyner tipi</p>
+    </div>
+  </div>
+
+  <h2>Genel Sevkiyat Raporu</h2>
+  <canvas id="shipmentChart"></canvas>
+
+  <script>
+    const ctx = document.getElementById('shipmentChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Karayolu', 'Havayolu', 'Denizyolu'],
+        datasets: [{
+          label: 'Sevkiyat Sayısı',
+          data: [42, 27, 15],
+          backgroundColor: ['#003366', '#00bcd4', '#00796b']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
