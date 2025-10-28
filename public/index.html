@@ -2,15 +2,83 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>Yurtdışı Sevkiyat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yurtdışı Sevkiyat Takibi</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('iskur-logo.png') no-repeat center center fixed;
+      background-size: 40%;
+      background-color: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      color: #003366;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px #ccc;
+    }
+
+    form {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    input {
+      margin-bottom: 15px;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0055aa;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #003366;
+      font-weight: bold;
+    }
+
+    @media (max-width: 500px) {
+      form {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h2>Sevkiyat Oluştur</h2>
+  <h1>Sevkiyat Takip Sistemi</h1>
   <form id="shipmentForm">
-    <input name="sender" placeholder="Gönderici" required />
-    <input name="receiver" placeholder="Alıcı" required />
-    <input name="origin" placeholder="Menşei Ülke" required />
-    <input name="destination" placeholder="Varış Ülke" required />
+    <input type="text" name="sender" placeholder="Gönderici" required />
+    <input type="text" name="receiver" placeholder="Alıcı" required />
+    <input type="text" name="origin" placeholder="Menşei Ülke" required />
+    <input type="text" name="destination" placeholder="Varış Ülke" required />
     <button type="submit">Gönder</button>
   </form>
   <div id="result"></div>
