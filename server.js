@@ -7,23 +7,23 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 
-// Dinamik port
+// Dinamik port (Render uyumlu)
 const PORT = process.env.PORT || 3000;
 
-// SQLite database dosyası
+// Database setup
 const DB_FILE = path.join(__dirname, 'shipments.db');
 const db = new sqlite3.Database(DB_FILE);
 
 // Eğer database yoksa oluştur
 if (!fs.existsSync(DB_FILE)) {
     const initSql = fs.readFileSync(path.join(__dirname, 'db-init.sql'), 'utf8');
-    db.exec(initSql, (err) => { if (err) console.error(err); });
+    db.exec(initSql, (err) => { if(err) console.error(err); });
 }
 
 // Statik dosyalar
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Ana route
+// Ana sayfa route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -38,7 +38,7 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// Sevkiyat listeleme
+// Sevkiyat listeleme API
 app.get('/api/shipments', (req,res)=>{
     db.all("SELECT * FROM shipments", (err,rows)=>{
         if(err) return res.status(500).json({message:'Hata'});
@@ -46,4 +46,5 @@ app.get('/api/shipments', (req,res)=>{
     });
 });
 
+// Sunucu başlat
 app.listen(PORT, ()=>console.log(`Sunucu çalışıyor: ${PORT}`));
