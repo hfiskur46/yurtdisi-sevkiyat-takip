@@ -1,0 +1,12 @@
+{
+  "name": "yurtdisi-sevkiyat-takip",
+  "version": "1.0.0",
+  "description": "Yurtdışı Sevkiyat Takip - statik site için Node.js sunucu",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
