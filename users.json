@@ -1,0 +1,23 @@
+[
+  {
+    "username": "admin",
+    "password": "admin123",
+    "role": "admin",
+    "name": "Admin User",
+    "email": "admin@example.com"
+  },
+  {
+    "username": "lojistik",
+    "password": "lojistik123",
+    "role": "logistics",
+    "name": "Lojistik Kullanıcı",
+    "email": "lojistik@example.com"
+  },
+  {
+    "username": "pazarlama",
+    "password": "pazarlama123",
+    "role": "sales",
+    "name": "Pazarlama Kullanıcı",
+    "email": "pazarlama@example.com"
+  }
+]
