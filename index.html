@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Yurtdışı Sevkiyat Takip</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="nav">
+    <div class="container">
+      <a class="brand" href="/">Yurtdışı Sevkiyat</a>
+      <nav>
+        <a href="/tracking.html">Takip Et</a>
+        <a href="/about.html">Hakkında</a>
+        <button id="themeToggle" class="btn small">Koyu/Gündüz</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="container hero-grid">
+      <div class="hero-left">
+        <h1>Uluslararası sevkiyatlarını hızlıca takip et</h1>
+        <p>Tek paketle tüm kargo numaralarını yönet, otomatik güncellemeler al ve teslimat geçmişini görüntüle.</p>
+
+        <div class="search">
+          <input id="trackingInput" placeholder="Kargo numarası girin (örn: LP123456789TR)"/>
+          <button id="trackBtn" class="btn">Takip Et</button>
+        </div>
+
+        <ul class="features">
+          <li>Çoklu kargo desteği</li>
+          <li>Canlı durum kartları</li>
+          <li>E-posta / SMS bildirimleri (isteğe bağlı)</li>
+        </ul>
+      </div>
+
+      <div class="hero-right" id="previewArea">
+        <div class="card empty">
+          <h3>Takip kartı önizlemesi</h3>
+          <p>Kargo numarası girip "Takip Et" butonuna basınca demo sonuç burada gösterilecek.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <section class="how container">
+    <h2>Nasıl çalışır?</h2>
+    <div class="steps">
+      <div class="step">
+        <strong>1</strong>
+        <p>Kargo numaranı gir</p>
+      </div>
+      <div class="step">
+        <strong>2</strong>
+        <p>API ile sorgula (örnek: REST / GraphQL)</p>
+      </div>
+      <div class="step">
+        <strong>3</strong>
+        <p>Sonuçları takip kartında gör</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2025 Yurtdışı Sevkiyat Takip — Demo</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
