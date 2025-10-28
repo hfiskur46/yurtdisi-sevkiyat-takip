@@ -3,47 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yurtdışı Sevkiyat Takibi</title>
+  <title>İSKUR Holding | Giriş</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: url('iskur-logo.png') no-repeat center center fixed;
-      background-size: 40%;
-      background-color: #f0f4f8;
+      background: linear-gradient(135deg, #003366, #00bcd4);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      height: 100vh;
+      animation: fadeIn 1s ease-in;
     }
 
-    h1 {
-      color: #003366;
-      margin-bottom: 20px;
-      text-shadow: 1px 1px 2px #ccc;
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
 
-    form {
-      background: rgba(255, 255, 255, 0.9);
-      padding: 30px;
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      text-align: center;
       width: 100%;
       max-width: 400px;
-      display: flex;
-      flex-direction: column;
     }
 
-    input {
-      margin-bottom: 15px;
+    .login-box h2 {
+      margin-bottom: 20px;
+      color: #003366;
+    }
+
+    .login-box input {
+      width: 100%;
       padding: 12px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
     }
 
-    button {
+    .login-box button {
+      width: 100%;
       padding: 12px;
       background-color: #003366;
       color: white;
@@ -51,53 +54,19 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
 
-    button:hover {
+    .login-box button:hover {
       background-color: #0055aa;
-    }
-
-    #result {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #003366;
-      font-weight: bold;
-    }
-
-    @media (max-width: 500px) {
-      form {
-        padding: 20px;
-      }
     }
   </style>
 </head>
 <body>
-  <h1>Sevkiyat Takip Sistemi</h1>
-  <form id="shipmentForm">
-    <input type="text" name="sender" placeholder="Gönderici" required />
-    <input type="text" name="receiver" placeholder="Alıcı" required />
-    <input type="text" name="origin" placeholder="Menşei Ülke" required />
-    <input type="text" name="destination" placeholder="Varış Ülke" required />
-    <button type="submit">Gönder</button>
-  </form>
-  <div id="result"></div>
-
-  <script>
-    document.getElementById("shipmentForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-
-      const res = await fetch("/api/create-shipment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      });
-
-      const result = await res.json();
-      document.getElementById("result").innerText = "Takip No: " + result.tracking_number;
-    });
-  </script>
+  <div class="login-box">
+    <h2>İSKUR Sevkiyat Takibi</h2>
+    <input type="text" placeholder="Kullanıcı Adı" />
+    <input type="password" placeholder="Şifre" />
+    <button onclick="window.location.href='dashboard.html'">Giriş Yap</button>
+  </div>
 </body>
 </html>
