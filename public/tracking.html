@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hakkında - Yurtdışı Sevkiyat Takip</title>
+  <title>Takip - Yurtdışı Sevkiyat Takip</title>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
@@ -17,17 +17,20 @@
     </div>
   </header>
 
-  <main class="container about">
-    <h1>Hakkımızda</h1>
-    <p>Bu proje, yurtdışı gönderilerinin takibini kolaylaştırmak için hazırlanmış modern ve genişletilebilir bir demo arayüzüdür. Gerçek API anahtarları ve entegrasyonlar eklenerek üretime alınabilir.</p>
+  <main class="container">
+    <h1>Sevkiyat Takip</h1>
+    <p>Birden fazla kargo numarası girin — her satıra bir numara.</p>
 
-    <h2>Özellikler & Öneriler</h2>
-    <ul>
-      <li>REST / GraphQL API entegrasyonu</li>
-      <li>Arka planda periyodik sorgu (webhook / cron)</li>
-      <li>Bildirim altyapısı (e‑posta / SMS / Push)</li>
-      <li>Uluslararası lokalleştirme (i18n)</li>
-    </ul>
+    <textarea id="multiInput" rows="4" placeholder="Örn: LP123456789TR
+CP987654321US"></textarea>
+    <div style="display:flex;gap:10px;margin-top:10px;">
+      <button id="multiTrack" class="btn">Hepsini Takip Et (Demo)</button>
+      <button id="clearBtn" class="btn ghost">Temizle</button>
+    </div>
+
+    <section id="results" class="results-grid" aria-live="polite">
+      <!-- Tracking result cards will be inserted here -->
+    </section>
   </main>
 
   <footer class="footer">
