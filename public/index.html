@@ -3,40 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>İSKUR Holding | Giriş</title>
+  <title>İSKUR Sevkiyat Sistemi</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(135deg, #003366, #00bcd4);
+      color: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100vh;
-      animation: fadeIn 1s ease-in;
+      min-height: 100vh;
+      padding: 20px;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
     }
 
-    .login-box {
+    .login-box, .dashboard {
       background: rgba(255, 255, 255, 0.95);
-      padding: 40px;
+      color: #003366;
+      padding: 30px;
       border-radius: 12px;
       box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      text-align: center;
+      max-width: 500px;
       width: 100%;
-      max-width: 400px;
+      margin-bottom: 30px;
     }
 
-    .login-box h2 {
-      margin-bottom: 20px;
-      color: #003366;
-    }
-
-    .login-box input {
+    input {
       width: 100%;
       padding: 12px;
       margin-bottom: 15px;
@@ -45,7 +43,7 @@
       font-size: 16px;
     }
 
-    .login-box button {
+    button {
       width: 100%;
       padding: 12px;
       background-color: #003366;
@@ -56,17 +54,105 @@
       cursor: pointer;
     }
 
-    .login-box button:hover {
-      background-color: #0055aa;
+    .category-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .card {
+      background: #fff;
+      color: #003366;
+      padding: 20px;
+      border-radius: 10px;
+      width: 150px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    canvas {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 600px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h2>İSKUR Sevkiyat Takibi</h2>
-    <input type="text" placeholder="Kullanıcı Adı" />
-    <input type="password" placeholder="Şifre" />
-    <button onclick="window.location.href='dashboard.html'">Giriş Yap</button>
+
+  <h1>İSKUR Sevkiyat Takip Sistemi</h1>
+
+  <div class="login-box" id="loginBox">
+    <h2>Giriş Yap</h2>
+    <input type="text" id="username" placeholder="Kullanıcı Adı" />
+    <input type="password" id="password" placeholder="Şifre" />
+    <button onclick="login()">Giriş</button>
   </div>
+
+  <div class="dashboard" id="dashboard" style="display:none;">
+    <h2>Taşıma Türüne Göre İşlemler</h2>
+    <div class="category-box">
+      <div class="card" onclick="alert('Karayolu formuna yönlendiriliyor...')">🚚 Karayolu</div>
+      <div class="card" onclick="alert('Havayolu formuna yönlendiriliyor...')">✈️ Havayolu</div>
+      <div class="card" onclick="alert('Denizyolu formuna yönlendiriliyor...')">🚢 Denizyolu</div>
+    </div>
+
+    <h2>Genel Rapor</h2>
+    <canvas id="shipmentChart"></canvas>
+  </div>
+
+  <script>
+    async function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      // Simülasyon: Gerçek API yerine sabit token
+      if (username === "admin" && password === "1234") {
+        const token = "simulated.jwt.token";
+        localStorage.setItem("jwt", token);
+        showDashboard();
+      } else {
+        alert("Giriş başarısız");
+      }
+    }
+
+    function showDashboard() {
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+
+      const ctx = document.getElementById('shipmentChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Karayolu', 'Havayolu', 'Denizyolu'],
+          datasets: [{
+            label: 'Sevkiyat Sayısı',
+            data: [42, 27, 15],
+            backgroundColor: ['#003366', '#00bcd4', '#00796b']
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // Oturum kontrolü
+    window.onload = () => {
+      const token = localStorage.getItem("jwt");
+      if (token) showDashboard();
+    };
+  </script>
 </body>
 </html>
