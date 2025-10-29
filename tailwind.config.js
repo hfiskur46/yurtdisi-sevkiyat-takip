@@ -3,15 +3,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#f0f9ff',
-          100: '#e6f6ff',
-          300: '#5bd1e6',
-          500: '#06b6d4',
-          700: '#028099'
+        fiori: {
+          50: '#f5fbfc',
+          100: '#eef8f9',
+          300: '#7ed7df',
+          500: '#0fb7c3',
+          700: '#0a7376'
         }
       }
-    },
+    }
   },
-  plugins: [],
-};
+  plugins: []
+}

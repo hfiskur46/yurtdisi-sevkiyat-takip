@@ -1,20 +1,15 @@
-Yurtdışı Sevkiyat Yönetim Paneli — UI Revizyon (Frontend-only)
-===============================================================
+SAP Fiori tarzı frontend (Türkçe) — Yurtdışı Sevkiyat Takip
+==============================================================
 
-Bu paket React + Vite + Tailwind kullanarak geliştirilmiş, flat (kök dizin) proje yapısına sahip bir **frontend-only** sürümüdür.
+Bu paket, mevcut backend ile uyumlu olacak şekilde hazırlanmış SAP Fiori esintili bir frontend teması içerir.
 Özellikler:
-- Gelişmiş dashboard: KPI kartları, area chart, pie chart, son sevkiyatlar tablosu
-- Gelişmiş sevkiyat listesi: arama, tablo görünümü
-- Finans raporu: basit gelir/gider/kâr görünümü
-- Basit mock login (localStorage ile)
+- Türkçe arayüz
+- Dashboard, Sevkiyatlar, Faturalar, Kullanıcılar sayfaları
+- SAP Fiori benzeri kart bazlı kurumsal görünüm
+- Vite + React + Tailwind kurulumu (flat dosya yapısı)
 
-Kurulum (local):
-1. İndir ve aç
-2. `npm install`
-3. `npm run dev`
-Not: Backend entegrasyonu için API endpoint'leri eklenmelidir.
+Kurulum:
+1. `npm install`
+2. `npm run dev`
 
-Tasarım notları:
-- Renk paleti: mavi-turkuaz (kurumsal), açık arkaplan, kart bazlı düzen.
-- Bileşenler flat yapıda kök dizinde bulunur (src klasörü yok).
-
+Not: Demo login için kullanıcılar: admin/admin123, lojistik/lojistik123, pazarlama/pazarlama123
